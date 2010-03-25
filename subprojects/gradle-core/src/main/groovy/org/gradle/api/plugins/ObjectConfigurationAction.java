@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 the original author or authors.
+ * Copyright 2010 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public interface ObjectConfigurationAction {
      * a URL can also be used, allowing the script to be fetched using HTTP, for example.
      * @return this
      */
-    ObjectConfigurationAction url(Object script);
+    ObjectConfigurationAction from(Object script);
 
     /**
      * Adds a {@link org.gradle.api.Plugin} to use to configure the target objects. You can call this method multiple
@@ -49,14 +49,14 @@ public interface ObjectConfigurationAction {
      * @param pluginClass The plugin to apply.
      * @return this
      */
-    ObjectConfigurationAction type(Class<? extends Plugin> pluginClass);
+    ObjectConfigurationAction plugin(Class<? extends Plugin> pluginClass);
 
     /**
      * Adds a {@link org.gradle.api.Plugin} to use to configure the target objects. You can call this method multiple
      * times, to use multiple plugins. Scripts and plugins are applied in the order that they are added.
      *
-     * @param pluginName The plugin to apply.
+     * @param pluginId The id of the plugin to apply.
      * @return this
      */
-    ObjectConfigurationAction id(String pluginName);
+    ObjectConfigurationAction plugin(String pluginId);
 }

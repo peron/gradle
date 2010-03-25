@@ -16,6 +16,7 @@
 package org.gradle.api.internal.file;
 
 import groovy.lang.Closure;
+import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.PathValidation;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.ConfigurableFileTree;
@@ -31,6 +32,7 @@ import org.gradle.api.internal.tasks.TaskResolver;
 import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -55,6 +57,10 @@ public class DefaultFileOperations implements FileOperations {
         return fileResolver.resolve(path, validation);
     }
 
+    public URI uri(Object path) {
+        return fileResolver.resolveUri(path);
+    }
+    
     public ConfigurableFileCollection files(Object... paths) {
         return new PathResolvingFileCollection(fileResolver, taskResolver, paths);
     }
@@ -89,6 +95,15 @@ public class DefaultFileOperations implements FileOperations {
 
     public String relativePath(Object path) {
         return fileResolver.resolveAsRelativePath(path);
+    }
+
+    public File mkdir(Object path) {
+        File dir = fileResolver.resolve(path);
+        if (dir.isFile()) {
+            throw new InvalidUserDataException(String.format("Can't create directory. The path=%s points to an existing file.", path));
+        }
+        dir.mkdirs();
+        return dir;
     }
 
     public WorkResult copy(Closure closure) {

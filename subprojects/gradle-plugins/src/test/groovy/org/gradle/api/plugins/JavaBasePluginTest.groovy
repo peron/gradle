@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
  
-package gradle.api.plugins
+package org.gradle.api.plugins
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.plugins.ReportingBasePlugin
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.Compile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.util.HelperUtil
 import org.junit.Test
-import static org.gradle.util.Matchers.builtBy
-import static org.gradle.util.Matchers.dependsOn
-import static org.gradle.util.WrapUtil.toLinkedSet
+import static org.gradle.util.Matchers.*
+import static org.gradle.util.WrapUtil.*
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.assertThat
-import static org.junit.Assert.assertTrue
+import static org.junit.Assert.*
 
 /**
  * @author Hans Dockter
@@ -44,7 +40,7 @@ class JavaBasePluginTest {
     private final JavaBasePlugin javaBasePlugin = new JavaBasePlugin()
 
     @Test public void appliesBasePluginsAndAddsConventionObject() {
-        javaBasePlugin.use(project)
+        javaBasePlugin.apply(project)
 
         assertTrue(project.getPlugins().hasPlugin(ReportingBasePlugin))
         assertTrue(project.getPlugins().hasPlugin(BasePlugin))
@@ -53,7 +49,7 @@ class JavaBasePluginTest {
     }
 
     @Test public void createsTasksAndAppliesMappingsForNewSourceSet() {
-        javaBasePlugin.use(project)
+        javaBasePlugin.apply(project)
 
         project.sourceSets.add('custom')
         def set = project.sourceSets.custom
@@ -84,7 +80,7 @@ class JavaBasePluginTest {
     }
 
     @Test public void appliesMappingsToTasksDefinedByBuildScript() {
-        javaBasePlugin.use(project)
+        javaBasePlugin.apply(project)
 
         def task = project.createTask('customCompile', type: Compile)
         assertThat(task.sourceCompatibility, equalTo(project.sourceCompatibility.toString()))
@@ -94,21 +90,19 @@ class JavaBasePluginTest {
 
         task = project.createTask('customJavadoc', type: Javadoc)
         assertThat(task.destinationDir, equalTo((project.file("$project.docsDir/javadoc"))))
-        assertThat(task.optionsFile, equalTo(project.file('build/tmp/javadoc.options')))
         assertThat(task.title, equalTo(project.apiDocTitle))
     }
 
     @Test public void appliesMappingsToCustomJarTasks() {
-        javaBasePlugin.use(project)
+        javaBasePlugin.apply(project)
 
         def task = project.createTask('customJar', type: Jar)
         assertThat(task, dependsOn())
         assertThat(task.destinationDir, equalTo(project.libsDir))
-        assertThat(task.manifest, notNullValue())
     }
 
     @Test public void createsLifecycleBuildTasks() {
-        javaBasePlugin.use(project)
+        javaBasePlugin.apply(project)
         
         def build = project.tasks[JavaBasePlugin.BUILD_TASK_NAME]
         assertThat(build, dependsOn(JavaBasePlugin.CHECK_TASK_NAME, BasePlugin.ASSEMBLE_TASK_NAME))

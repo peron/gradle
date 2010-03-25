@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 package org.gradle.api.plugins
 
 
@@ -35,13 +37,13 @@ public class EclipsePluginTest {
 
     @Test
     public void canApplyToProject() {
-        plugin.use(project)
+        plugin.apply(project)
     }
 
     @Test
     public void addsTasksWhenJavaPluginApplied() {
-        plugin.use(project)
-        project.plugins.usePlugin(JavaPlugin)
+        plugin.apply(project)
+        project.plugins.apply(JavaPlugin)
 
         def task = project.tasks[EclipsePlugin.ECLIPSE_TASK_NAME]
         assertThat(task, dependsOn(EclipsePlugin.ECLIPSE_PROJECT_TASK_NAME, EclipsePlugin.ECLIPSE_CP_TASK_NAME))
@@ -58,13 +60,13 @@ public class EclipsePluginTest {
         task = project.tasks[EclipsePlugin.ECLIPSE_CLEAN_TASK_NAME]
         assertThat(task, instanceOf(Delete.class))
         assertThat(task, dependsOn())
-        assertThat(task.from, equalTo([EclipseProject.PROJECT_FILE_NAME, EclipseClasspath.CLASSPATH_FILE_NAME, new File(EclipseWtp.WTP_FILE_DIR, EclipseWtp.WTP_FILE_NAME)] as Set))
+        assertThat(task.delete, equalTo([EclipseProject.PROJECT_FILE_NAME, EclipseClasspath.CLASSPATH_FILE_NAME, new File(EclipseWtp.WTP_FILE_DIR, EclipseWtp.WTP_FILE_NAME)] as Set))
     }
 
     @Test
     public void addsTasksWhenGroovyPluginApplied() {
-        plugin.use(project)
-        project.plugins.usePlugin(GroovyPlugin)
+        plugin.apply(project)
+        project.plugins.apply(GroovyPlugin)
 
         def task = project.tasks[EclipsePlugin.ECLIPSE_PROJECT_TASK_NAME]
         assertThat(task, dependsOn())
@@ -75,8 +77,8 @@ public class EclipsePluginTest {
 
     @Test
     public void addsTasksWhenScalaPluginApplied() {
-        plugin.use(project)
-        project.plugins.usePlugin(ScalaPlugin)
+        plugin.apply(project)
+        project.plugins.apply(ScalaPlugin)
 
         def task = project.tasks[EclipsePlugin.ECLIPSE_PROJECT_TASK_NAME]
         assertThat(task, dependsOn())
@@ -87,8 +89,8 @@ public class EclipsePluginTest {
     
     @Test
     public void addsTasksWhenWarPluginApplied() {
-        plugin.use(project)
-        project.plugins.usePlugin(WarPlugin)
+        plugin.apply(project)
+        project.plugins.apply(WarPlugin)
 
         def task = project.tasks[EclipsePlugin.ECLIPSE_TASK_NAME]
         assertThat(task, dependsOn(EclipsePlugin.ECLIPSE_PROJECT_TASK_NAME, EclipsePlugin.ECLIPSE_CP_TASK_NAME, EclipsePlugin.ECLIPSE_WTP_TASK_NAME))

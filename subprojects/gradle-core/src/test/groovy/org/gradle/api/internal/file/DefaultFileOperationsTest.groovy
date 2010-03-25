@@ -15,24 +15,24 @@
  */
 package org.gradle.api.internal.file
 
-
-import static org.junit.Assert.*
-import static org.hamcrest.Matchers.*
-import static org.gradle.util.Matchers.*
-import org.gradle.util.JUnit4GroovyMockery
-import org.jmock.integration.junit4.JMock
-import org.junit.runner.RunWith
-import org.junit.Test
-import org.gradle.api.internal.tasks.TaskResolver
-import org.junit.Rule
-import org.gradle.util.TemporaryFolder
-import org.gradle.util.TestFile
 import org.gradle.api.PathValidation
 import org.gradle.api.file.FileTree
+import org.gradle.api.internal.file.archive.TarFileTree
+import org.gradle.api.internal.file.archive.ZipFileTree
 import org.gradle.api.internal.file.copy.CopyActionImpl
 import org.gradle.api.internal.file.copy.CopySpecImpl
-import org.gradle.api.internal.file.archive.ZipFileTree
-import org.gradle.api.internal.file.archive.TarFileTree
+import org.gradle.api.internal.tasks.TaskResolver
+import org.gradle.util.JUnit4GroovyMockery
+import org.gradle.util.TemporaryFolder
+import org.gradle.util.TestFile
+import org.jmock.integration.junit4.JMock
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import static org.hamcrest.Matchers.*
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertThat
+import org.gradle.api.InvalidUserDataException
 
 @RunWith(JMock.class)
 public class DefaultFileOperationsTest {
@@ -58,6 +58,12 @@ public class DefaultFileOperationsTest {
             will(returnValue(file))
         }
         assertThat(fileOperations.file('path', PathValidation.EXISTS), equalTo(file))
+    }
+
+    @Test
+    public void resolvesURI() {
+        URI uri = expectPathResolvedToUri('path')
+        assertThat(fileOperations.uri('path'), equalTo(uri))
     }
 
     @Test
@@ -92,7 +98,7 @@ public class DefaultFileOperationsTest {
     @Test
     public void createsFileTreeFromClosure() {
         TestFile baseDir = expectPathResolved('base')
-        
+
         def fileTree = fileOperations.fileTree { from 'base' }
         assertThat(fileTree, instanceOf(FileTree.class))
         assertThat(fileTree.dir, equalTo(baseDir))
@@ -122,12 +128,35 @@ public class DefaultFileOperationsTest {
             one(resolver).resolve('dir')
             will(returnValue(tmpDir.getDir()))
         }
-        
+
         def result = fileOperations.copy { from 'file'; into 'dir' }
         assertThat(result, instanceOf(CopyActionImpl.class))
         assertFalse(result.didWork)
     }
-    
+
+    @Test
+    public void makesDir() {
+        TestFile dirToBeCreated = tmpDir.file("parentDir", "dir")
+        context.checking {
+            one(resolver).resolve('parentDir/dir')
+            will(returnValue(dirToBeCreated))
+        }
+        File actualDir = fileOperations.mkdir('parentDir/dir')
+        assertThat(actualDir, equalTo(dirToBeCreated))
+        assertThat(actualDir.isDirectory(), equalTo(true))
+    }
+
+    @Test(expected = InvalidUserDataException)
+    public void makesDirThrowsExceptionIfPathPointsToFile() {
+        TestFile dirToBeCreated = tmpDir.file("parentDir", "dir")
+        dirToBeCreated.touch();
+        context.checking {
+            one(resolver).resolve('parentDir/dir')
+            will(returnValue(dirToBeCreated))
+        }
+        fileOperations.mkdir('parentDir/dir')
+    }
+
     @Test
     public void createsCopySpec() {
         def spec = fileOperations.copySpec { include 'pattern'}
@@ -142,6 +171,15 @@ public class DefaultFileOperationsTest {
             will(returnValue(file))
         }
         return file
+    }
+
+    private URI expectPathResolvedToUri(String path) {
+        TestFile file = tmpDir.file(path)
+        context.checking {
+            one(resolver).resolveUri(path)
+            will(returnValue(file.toURI()))
+        }
+        return file.toURI()
     }
 
     private TestFile expectTempFileCreated() {

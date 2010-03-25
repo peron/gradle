@@ -34,6 +34,7 @@ import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,8 +183,6 @@ public interface Project extends Comparable<Project> {
 
     public static final String TMP_DIR_NAME = ".gradle";
 
-    public static final String DEFAULT_GROUP = "unspecified";
-
     public static final String DEFAULT_VERSION = "unspecified";
 
     public static final String DEFAULT_STATUS = "release";
@@ -258,7 +257,7 @@ public interface Project extends Comparable<Project> {
 
     /**
      * <p>Returns the group of this project. Gradle always uses the toString() value of a group. The group defaults to
-     * {@value #DEFAULT_GROUP}.</p> <p/> <p>You can access this property in your build file using
+     * the path with dots a separators.</p> <p/> <p>You can access this property in your build file using
      * <code>group</code></p>
      *
      * @return The group of this project. Never returns null.
@@ -342,13 +341,13 @@ public interface Project extends Comparable<Project> {
     /**
      * <p>Applies a {@link Plugin} to this project.</p>
      *
-     * @param pluginName The name of the plugin.
+     * @param pluginId The id of the plugin.
      * @return This project.
      * @deprecated You should use the {@link #apply(java.util.Map)} or {@link #apply(groovy.lang.Closure)} method
      *             instead.
      */
     @Deprecated
-    Project usePlugin(String pluginName);
+    Project usePlugin(String pluginId);
 
     /**
      * <p>Applies a {@link Plugin} to this project.</p>
@@ -679,7 +678,7 @@ public interface Project extends Comparable<Project> {
      * interpreted relative to the project directory.</li>
      *
      * <li>{@link java.net.URI} or {@link java.net.URL}. The URL's path is interpreted as the file path. Currently, only
-     * 'file' URLs are supported.
+     * 'file:' URLs are supported.
      *
      * <li>{@link Closure}. The closure's return value is resolved recursively.</li>
      *
@@ -706,6 +705,16 @@ public interface Project extends Comparable<Project> {
      * @throws InvalidUserDataException When the file does not meet the given validation constraint.
      */
     File file(Object path, PathValidation validation) throws InvalidUserDataException;
+
+    /**
+     * <p>Resolves a file path to a URI, relative to the project directory of this project. Evaluates the provided path
+     * object as described for {@link #file(Object)}, with the exception that any URI scheme is supported, not just
+     * 'file:' URIs.</p>
+     *
+     * @param path The object to resolve as a URI.
+     * @return The resolved URI. Never returns null.
+     */
+    URI uri(Object path);
 
     /**
      * <p>Returns the relative path from the project directory to the given path. The given path object is (logically)
@@ -846,6 +855,15 @@ public interface Project extends Comparable<Project> {
      * @return the file tree. Never returns null.
      */
     FileTree tarTree(Object tarPath);
+
+    /**
+     * Creates a directory and returns a file pointing to it.
+     *
+     * @param path The path for the directory to be created. Evaluated as for {@link #file(Object)}.
+     * @return the created directory
+     * @throws org.gradle.api.InvalidUserDataException If the path points to an existing file.
+     */
+    File mkdir(Object path);
 
     /**
      * <p>Converts a name to an absolute project path, resolving names relative to this project.</p>
@@ -1240,11 +1258,9 @@ public interface Project extends Comparable<Project> {
     /**
      * <p>Configures this project using plugins or scripts. The following options are available:</p>
      *
-     * <ul><li>{@code url}: The URL for the script to apply to the project.</li>
+     * <ul><li>{@code from}: A script to apply to the project. Accepts any path supported by {@link #uri(Object)}.</li>
      *
-     * <li>{@code id}: The id of the plugin to apply to the project.</li>
-     *
-     * <li>{@code type}: The implementation class of the plugin to apply to the project.</li>
+     * <li>{@code plugin}: The id or implementation class of the plugin to apply to the project.</li>
      *
      * <li>{@code to}: The target delegate object or objects. Use this to configure objects other than the
      * project.</li></ul>

@@ -22,9 +22,9 @@ import org.gradle.api.Project
  * A plugin which configures a product module project. Each product module is assembled into one or more products.
  */
 class ProductModulePlugin implements Plugin<Project> {
-    void use(Project project) {
+    void apply(Project project) {
         project.configure(project) {
-            apply id: 'java'
+            apply plugin: 'java'
             repositories {
                 mavenCentral()
             }

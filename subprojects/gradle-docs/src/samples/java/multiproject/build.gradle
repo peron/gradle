@@ -1,7 +1,7 @@
 // START SNIPPET configuration-injection
 subprojects {
-    apply id: 'java'
-    apply id: 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
 
     repositories {
        mavenCentral()
@@ -11,9 +11,11 @@ subprojects {
         testCompile 'junit:junit:4.7'
     }
 
-    group = 'org.gradle'
     version = '1.0'
-    manifest.mainAttributes(provider: 'gradle')
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
 }
 
 dependsOnChildren()

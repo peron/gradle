@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
  
 package org.gradle.api.plugins
 
@@ -45,7 +47,7 @@ class JavaPluginTest {
     private final JavaPlugin javaPlugin = new JavaPlugin()
 
     @Test public void appliesBasePluginsAndAddsConventionObject() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         assertThat(project.convention.plugins.embeddedJavaProject, instanceOf(EmbeddableJavaProject))
         assertThat(project.convention.plugins.embeddedJavaProject.rebuildTasks, equalTo([BasePlugin.CLEAN_TASK_NAME, JavaBasePlugin.BUILD_TASK_NAME]))
@@ -53,7 +55,7 @@ class JavaPluginTest {
     }
 
     @Test public void addsConfigurationsToTheProject() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         def configuration = project.configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
         assertFalse(configuration.visible)
@@ -79,7 +81,7 @@ class JavaPluginTest {
     }
 
     @Test public void createsStandardSourceSetsAndAppliesMappings() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         def set = project.sourceSets[SourceSet.MAIN_SOURCE_SET_NAME]
         assertThat(set.java.srcDirs, equalTo(toLinkedSet(project.file('src/main/java'))))
@@ -103,7 +105,7 @@ class JavaPluginTest {
     }
 
     @Test public void createsTasksAndAppliesMappingsForNewSourceSet() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         project.sourceSets.add('custom')
         def set = project.sourceSets.custom
@@ -114,7 +116,7 @@ class JavaPluginTest {
     }
     
     @Test public void createsStandardTasksAndAppliesMappings() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         def task = project.tasks[JavaPlugin.PROCESS_RESOURCES_TASK_NAME]
         assertThat(task, instanceOf(Copy))
@@ -162,7 +164,11 @@ class JavaPluginTest {
         assertThat(task, dependsOn(JavaPlugin.CLASSES_TASK_NAME))
         assertThat(task.destinationDir, equalTo(project.libsDir))
         assertThat(task.rootSpec.sourcePaths, equalTo([project.sourceSets.main.classes] as Set))
+        assertThat((task.metaInf.sourcePaths as List)[0].call(), sameInstance(project.metaInf))
         assertThat(task.manifest, notNullValue())
+        assertThat(task.manifest, not(sameInstance(project.manifest)))
+        assertThat(task.manifest.mergeSpecs.size(), equalTo(1))
+        assertThat(task.manifest.mergeSpecs[0].mergePaths[0], sameInstance(project.manifest))
 
         task = project.tasks[BasePlugin.ASSEMBLE_TASK_NAME]
         assertThat(task, dependsOn(JavaPlugin.JAR_TASK_NAME))
@@ -179,7 +185,6 @@ class JavaPluginTest {
         assertThat(task.classpath.sourceCollections, hasItem(project.sourceSets.main.compileClasspath))
         assertThat(task.destinationDir, equalTo(project.file("$project.docsDir/javadoc")))
         assertThat(task.title, equalTo(project.apiDocTitle))
-        assertThat(task.optionsFile, equalTo(project.file('build/tmp/javadoc.options')))
 
         task = project.tasks["buildArchives"]
         assertThat(task, instanceOf(DefaultTask))
@@ -199,7 +204,7 @@ class JavaPluginTest {
     }
 
     @Test public void appliesMappingsToTasksDefinedByBuildScript() {
-        javaPlugin.use(project)
+        javaPlugin.apply(project)
 
         def task = project.createTask('customTest', type: org.gradle.api.tasks.testing.Test)
         assertThat(task, dependsOn(JavaPlugin.TEST_CLASSES_TASK_NAME, JavaPlugin.CLASSES_TASK_NAME))
@@ -218,10 +223,10 @@ class JavaPluginTest {
         DefaultProject middleProject = HelperUtil.createChildProject(project, "middle");
         DefaultProject appProject = HelperUtil.createChildProject(project, "app");
 
-        javaPlugin.use(project);
-        javaPlugin.use(commonProject);
-        javaPlugin.use(middleProject);
-        javaPlugin.use(appProject);
+        javaPlugin.apply(project);
+        javaPlugin.apply(commonProject);
+        javaPlugin.apply(middleProject);
+        javaPlugin.apply(appProject);
 
         appProject.dependencies {
             compile project(path: middleProject.path, configuration: 'compile')

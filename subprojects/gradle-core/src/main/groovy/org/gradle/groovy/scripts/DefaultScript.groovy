@@ -88,6 +88,10 @@ abstract class DefaultScript extends BasicScript {
         fileOperations.file(path, validation)
     }
 
+    URI uri(Object path) {
+        fileOperations.uri(path)
+    }
+
     ConfigurableFileCollection files(Object ... paths) {
         fileOperations.files(paths)
     }
@@ -126,6 +130,10 @@ abstract class DefaultScript extends BasicScript {
 
     CopySpec copySpec(Closure closure) {
         fileOperations.copySpec(closure)
+    }
+
+    File mkdir(Object path) {
+        return fileOperations.mkdir(path);
     }
 
     public void captureStandardOutput(LogLevel level) {

@@ -16,23 +16,33 @@
 
 package org.gradle.api.plugins
 
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.JavaVersion
+import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.project.DefaultProject
 import org.gradle.api.internal.tasks.DefaultSourceSetContainer
+import org.gradle.api.java.archives.internal.DefaultManifest
 import org.gradle.util.HelperUtil
+import org.gradle.util.JUnit4GroovyMockery
+import org.gradle.util.TemporaryFolder
+import org.gradle.util.TestFile
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertThat
 
 /**
  * @author Hans Dockter
  */
 class JavaPluginConventionTest {
+    private final JUnit4GroovyMockery context = new JUnit4GroovyMockery()
     private DefaultProject project = HelperUtil.createRootProject()
     private File testDir = project.projectDir
     private JavaPluginConvention convention
+
+    @Rule
+    public final TemporaryFolder tmpDir = new TemporaryFolder()
 
     @Before public void setUp() {
         project.convention.plugins.reportingBase = new ReportingBasePluginConvention(project)
@@ -42,7 +52,6 @@ class JavaPluginConventionTest {
     @Test public void defaultValues() {
         assertThat(convention.sourceSets, instanceOf(DefaultSourceSetContainer))
         assertThat(convention.manifest, notNullValue())
-        assertEquals([], convention.metaInf)
         assertEquals('dependency-cache', convention.dependencyCacheDirName)
         assertEquals('docs', convention.docsDirName)
         assertEquals('test-results', convention.testResultsDirName)
@@ -86,26 +95,6 @@ class JavaPluginConventionTest {
         assertEquals(new File(project.buildDir, 'other-reports-dir/other-test-dir'), convention.testReportDir)
     }
 
-    @Test public void testMkdir() {
-        String expectedDirName = 'somedir'
-        File dir = convention.mkdir(expectedDirName)
-        assertEquals(new File(project.buildDir, expectedDirName), dir)
-    }
-
-    @Test public void testMkdirWithSpecifiedBasedir() {
-        String expectedDirName = 'somedir'
-        File dir = convention.mkdir(testDir, expectedDirName)
-        assertEquals(new File(testDir, expectedDirName), dir)
-    }
-
-    @Test (expected = InvalidUserDataException) public void testMkdirWithNullArgument() {
-        convention.mkdir(null)
-    }
-
-    @Test(expected = InvalidUserDataException) public void testMkdirWithEmptyArguments() {
-        convention.mkdir('')
-    }
-
     @Test public void testTargetCompatibilityDefaultsToSourceCompatibilityWhenNotSet() {
         convention.sourceCompatibility = '1.4'
         assertEquals(JavaVersion.VERSION_1_4, convention.sourceCompatibility)
@@ -118,5 +107,34 @@ class JavaPluginConventionTest {
         convention.sourceCompatibility = 6
         assertEquals(JavaVersion.VERSION_1_6, convention.sourceCompatibility)
         assertEquals(JavaVersion.VERSION_1_2, convention.targetCompatibility)
+    }
+
+    @Test
+    public void createsManifestWithFileResolvingAndValues() {
+        FileResolver fileResolver = context.mock(FileResolver)
+        project.setFileResolver fileResolver
+        TestFile manifestFile = expectPathResolved(fileResolver, 'file')
+        manifestFile.write("key2: value2")
+        def manifest = convention.manifest {
+            from 'file'
+            attributes(key1: 'value1')
+        }
+        assertThat(manifest, instanceOf(DefaultManifest.class))
+        DefaultManifest mergedManifest = manifest.effectiveManifest
+        assertThat(mergedManifest.attributes, equalTo([key1: 'value1', key2: 'value2', 'Manifest-Version': '1.0']))
+    }
+
+    @Test
+    public void createsEmptyManifest() {
+        assertThat(convention.manifest(), instanceOf(DefaultManifest.class))
+    }
+
+    private TestFile expectPathResolved(FileResolver fileResolver, String path) {
+        TestFile file = tmpDir.file(path)
+        context.checking {
+            one(fileResolver).resolve(path)
+            will(returnValue(file))
+        }
+        return file
     }
 }
