@@ -11,15 +11,33 @@ import sun.misc.BASE64Encoder
  * @author hackergarten
  */
 class AnnouncePlugin implements Plugin<Project> {
-  public void apply(final Project target) {
-    target.metaClass.announce = {String msg, def type ->
+  public void apply(final Project project) {
+
+    project.convention.plugins.announce = new AnnouncePluginConvention()
+
+    project.metaClass.announce = {String msg, def type ->
+
+      def username = project.convention.plugins.announce.username
+      def password = project.convention.plugins.announce.password
+
       if (type == "twitter") {
-        new Twitter("username", "password").send(target.name, msg)
+        new Twitter(username, password).send(project.name, msg)
       } else if (type == "notify-send") {
-        new NotifySend().send(target.name, msg)
+        new NotifySend().send(project.name, msg)
       } else if (type == "snarl") {
-        new Snarl().send(target.name, msg)
+        new Snarl().send(project.name, msg)
       }
     }
   }
 }
+
+class AnnouncePluginConvention {
+    String username
+    String password
+    
+    def announce(Closure closure) {
+        closure.delegate = this
+        closure() 
+    }
+}
+

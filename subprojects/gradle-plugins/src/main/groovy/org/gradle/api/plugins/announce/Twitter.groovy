@@ -14,11 +14,18 @@ class Twitter implements Announcer {
   def userName
   def password
   
-  Twitter(String username, String password) {
-    this.userName = username
-    this.password = password
+  Twitter(String u, String p) {
+    userName = u
+    password = p
   }
-
+  void setUserName(String u) {
+    userName = u
+  }
+  
+  void setPassword(String p) {
+    password = p
+  }
+  
   public void send(String title, String message) {
     def connection = new URL("https://twitter.com/statuses/update.xml").openConnection()
     connection.doInput = true
