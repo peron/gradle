@@ -6,14 +6,18 @@ import java.net.Socket
 class Snarl {
 	private static final float SNP_VERSION = 1.1f
 	private static final String HEAD = "type=SNP#?version=" + SNP_VERSION
+
+	public void send(String title, String message) {
+		send("localhost", title, message)
+	}
 	
-	def send(Collection hosts, title, message) {
+	public void send(Collection hosts, String title, String message) {
 		hosts.each { host ->
 			send(host, title, message)
 		}
 	}
 	
-	def send(host, title, message) {
+	public void send(String host, String title, String message) {
 		with(new Socket(InetAddress.getByName(host), 9887)) { sock ->
 			with(new PrintWriter(sock.getOutputStream(), true)) { out ->
 				out.println(formatMessage(title, message))
@@ -21,7 +25,7 @@ class Snarl {
 		}
 	}
 	
-	private formatMessage(title, message) {
+	private String formatMessage(String title, String message) {
 		def properties = [
 		        formatProperty("action", "notification"), 
 				formatProperty("app", "Gradle Snarl Notifier"),
@@ -34,7 +38,7 @@ class Snarl {
 		HEAD + properties.join('') + "\r\n"
 	}
 	
-	private formatProperty(name, value) {
+	private String formatProperty(String name, String value) {
 		if (!value) return ""
 		else return "#?" + name + "=" + value
 	}

@@ -5,7 +5,7 @@ import groovy.mock.interceptor.*;
 
 class SnarlTest extends GroovyTestCase {
 //	public void testSend() {
-//		new Snarl().send("localhost", "JUnit Test", "Hello from Groovy!");
+//		new Snarl().send("JUnit Test", "Hello from Groovy!");
 //	}
 //	public void testSend_MultipleHosts() {
 //		new Snarl().send(["localhost", "localhost", "localhost"], "JUnit Test", "Hello from Groovy!");
@@ -13,7 +13,7 @@ class SnarlTest extends GroovyTestCase {
 	
 	void testMockSend() {
 		use(PrintWriterCapture) {
-			new Snarl().send("localhost", "some title", "some message")
+			new Snarl().send("some title", "some message")
 			assert PrintWriterCapture.capture == "type=SNP#?version=1.1#?action=notification#?app=Gradle Snarl Notifier#?class=alert#?title=some title#?text=some message#?timeout=10\r\n"
 		}
 	}
