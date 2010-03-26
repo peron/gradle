@@ -20,6 +20,7 @@
 	<itemizedlist>
  		<listitem><ulink url='http://twitter.com'>Twitter,</ulink></listitem>
  		<listitem><ulink url='http://ubuntu.com'>Ubuntu Notify</ulink></listitem>
+<listitem><ulink url="http://www.fullphat.net/index.php">Snarl</ulink>,a Windows Notification System</listitem>
 <listitem>....</listitem>
  	</itemizedlist>
 	
@@ -31,7 +32,62 @@
         <sample id="useAnnouncePlugin" dir="announce" title="Using the announce plugin">
             <sourcefile file="build.gradle" snippet="use-plugin"/>
         </sample>
+
+	<para>After that, configure you username and password (if required for the service you want to announce to) with:</para>
+	<sample id="useAnnouncePlugin" dir="announce" title="Configure the announce plugin">
+            <sourcefile file="build.gradle" snippet="announce-plugin-conf"/>
+        </sample>
+
+	<para>Finally, you can use announce with any task by attaching it via task.dolast() as shown below</para>
+	<sample id="useAnnouncePlugin" dir="announce" title="Using the announce plugin">
+            <sourcefile file="build.gradle" snippet="announce-usage"/>
+        </sample>
+
+	<para>As you can see, the syntax in <literal>.doLast</literal> is
+
+		 <cmdsynopsis>
+			<command> announce("MESSAGE", "TARGET")</command>
+		 </cmdsynopsis>
+
+		Where MESSAGE is any GString you pass (and might have constructed before). And TARGET might one of the following:
+
+	</para>
     </section>
+   <table>
+            <title>announce plugin targets</title>
+            <thead>
+                <tr>
+                    <td>target literal</td>
+                    <td>target</td>
+                    <td>configuration parameters</td>
+		    <td>more information</td>
+                </tr>
+            </thead>
+            <tr>
+                <td>twitter</td>
+                <td>Twitter</td>
+           	<td>username , password</td> 
+		<td></td>
+	   </tr>
+            <tr>
+                <td>snarl</td>
+                <td>Snarl Windows Notification Service</td>
+		<td></td>
+		<td></td>
+            </tr>
+            <tr>
+                <td>notify-send</td>
+                <td>Notify Ubuntu Notofication Service</td>
+		<td></td>
+		<td>You need to habe notify-send installed for this. Run 
+
+			<literal> sudo apt-get install libnotify-bin</literal> 
+
+			on Ubuntu to install it.</td>
+            </tr>
+        </table>
+
+
 
     <section>
         <title>Tasks</title>
@@ -54,53 +110,15 @@
         <para>The announce plugin adds an 
 	
 	TBD
-	<!-- <literal>osgi</literal> property to every <emphasis>jar</emphasis> task.
-            This <literal>osgi</literal> property points to an instance of
-            <apilink class="org.gradle.api.plugins.osgi.OsgiManifest"/>. Via the OsgiManifest object you can control the
-            generation of the OSGi Manifest of the respective jar. The OSGi plugin assign default values to the
-            OsgiManifest object. -->
         </para>
-        <table>
-            <title>announce plugin properties</title>
-            <thead>
-                <tr>
-                    <td>Task Property</td>
-                    <td>Convention Property</td>
-                </tr>
-            </thead>
-            <tr>
-                <td>classesDir</td>
-                <td>project.classesDir</td>
-            </tr>
-            <tr>
-                <td>version</td>
-                <td>project.version</td>
-            </tr>
-            <tr>
-                <td>name</td>
-                <td>project.archivesBaseName</td>
-            </tr>
-            <tr>
-                <td>symbolicName</td>
-                <td>transformation of the name and the group to produce a valid OSGi symbolic name</td>
-            </tr>
-            <tr>
-                <td>classpath</td>
-                <td>project.dependencies.resolve('runtime')</td>
-            </tr>
-        </table>
-
-<ul>
-	<li>w</li><li>x</li><li>y</li><li>z</li>
-</ul>
-
+     
         <para>
         	
 
         </para>
-        <sample id="anouncePlugin" dir="userguide/tutorial/announce" title="Full example of annunce plugin usage.">
-            <sourcefile file="build.gradle" snippet="full-example"/>
-        </sample>
+      <!--  <sample id="anouncePlugin" dir="userguide/tutorial/announce" title="example of annunce plugin usage.">
+            <sourcefile file="build.gradle" snippet="full-example"/> 
+        </sample>-->
         <para>
 	TBD
 	</para>
