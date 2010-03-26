@@ -64,7 +64,8 @@
     <xi:include href='osgi.xml'/>
     <xi:include href='eclipsePlugin.xml'/>
     <xi:include href='projectReports.xml'/>
-    <xi:include href='depMngmt.xml'/>
+    <xi:include href='announcePlugin.xml'/>
+	<xi:include href='depMngmt.xml'/>
     <xi:include href='artifactMngmt.xml'/>
     <xi:include href='buildLifecycle.xml'/>
     <xi:include href='multiproject.xml'/>
