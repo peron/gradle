@@ -59,7 +59,6 @@
     <xi:include href='scalaPlugin.xml'/>
     <xi:include href='warPlugin.xml'/>
     <xi:include href='jettyPlugin.xml'/>
-    <xi:include href='mavenPlugin.xml'/>
     <xi:include href='codeQualityPlugin.xml'/>
     <xi:include href='osgi.xml'/>
     <xi:include href='eclipsePlugin.xml'/>
@@ -67,6 +66,7 @@
     <xi:include href='announcePlugin.xml'/>
 	<xi:include href='depMngmt.xml'/>
     <xi:include href='artifactMngmt.xml'/>
+    <xi:include href='mavenPlugin.xml'/>
     <xi:include href='buildLifecycle.xml'/>
     <xi:include href='multiproject.xml'/>
     <xi:include href='customTasks.xml'/>
