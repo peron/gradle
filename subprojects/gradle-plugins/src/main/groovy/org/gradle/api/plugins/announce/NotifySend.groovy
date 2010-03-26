@@ -1,4 +1,4 @@
-package org.gradle.api.plugins;
+package org.gradle.api.plugins.announce;
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

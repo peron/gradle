@@ -1,4 +1,4 @@
-package org.gradle.api.plugins;
+package org.gradle.api.plugins.announce;
 
 
 import org.gradle.api.Plugin
@@ -19,7 +19,7 @@ class AnnouncePlugin implements Plugin<Project> {
 
       def username = project.convention.plugins.announce.username
       def password = project.convention.plugins.announce.password
-
+      
       if (type == "twitter") {
         new Twitter(username, password).send(project.name, msg)
       } else if (type == "notify-send") {

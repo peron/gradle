@@ -1,4 +1,4 @@
-package org.gradle.api.plugins;
+package org.gradle.api.plugins.announce;
 
 import java.net.InetAddress
 import java.net.Socket

@@ -1,4 +1,4 @@
-package org.gradle.api.plugins;
+package org.gradle.api.plugins.announce;
 
 
 interface Announcer {
