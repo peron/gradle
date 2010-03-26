@@ -1,9 +1,9 @@
-package org.gradle.plugins
+package org.gradle.api.plugins;
 
 import java.net.InetAddress
 import java.net.Socket
 
-class Snarl {
+class Snarl implements Announcer {
 	private static final float SNP_VERSION = 1.1f
 	private static final String HEAD = "type=SNP#?version=" + SNP_VERSION
 

@@ -1,4 +1,4 @@
-package org.gradle.api.plugins.announce
+package org.gradle.api.plugins;
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory
  * @author Hackergarten
  */
 
-class NotifySend {
+class NotifySend implements Announcer {
 
     private static Logger logger = LoggerFactory.getLogger(NotifySend)
 
-    void send(String title, String message) {
+    public void send(String title, String message) {
         def cmd = [
                 'notify-send',
                 title,
