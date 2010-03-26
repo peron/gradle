@@ -32,8 +32,8 @@ public class CodeQualityPlugin implements Plugin<Project> {
     public static final String CODE_NARC_MAIN_TASK = "codenarcMain";
     public static final String CODE_NARC_TEST_TASK = "codenarcTest";
 
-    public void use(final Project project) {
-        project.plugins.usePlugin(ReportingBasePlugin.class);
+    public void apply(final Project project) {
+        project.plugins.apply(ReportingBasePlugin.class);
 
         JavaCodeQualityPluginConvention javaPluginConvention = new JavaCodeQualityPluginConvention(project)
         project.convention.plugins.javaCodeQuality = javaPluginConvention;

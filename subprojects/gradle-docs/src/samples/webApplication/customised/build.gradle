@@ -3,15 +3,15 @@ import org.apache.commons.httpclient.methods.GetMethod
 
 group = 'gradle'
 version = '1.0'
-apply id: 'war'
-apply id: 'jetty'
+apply plugin: 'war'
+apply plugin: 'jetty'
 
 configurations {
    moreLibs
 }
 
 repositories {
-   flatDir(dirs: "$rootDir/lib")
+   flatDir(dirs: "$projectDir/lib")
    mavenCentral()
 }
 

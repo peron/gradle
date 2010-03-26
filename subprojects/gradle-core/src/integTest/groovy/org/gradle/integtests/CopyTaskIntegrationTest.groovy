@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 the original author or authors.
+ * Copyright 2010 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,13 +171,14 @@ public class CopyTaskIntegrationTest extends AbstactCopyIntegrationTest {
     }
 
     /*
-     * two.a starts off with "1\n2\n3\n"
+     * two.a starts off with "$one\n${one+1}\n${one+1+1}\n"
      * If these filters are chained in the correct order, you should get 6, 11, and 16
      */
     @Test public void copyMultipleFilterTest() {
         TestFile buildFile = testFile('build.gradle').writelns(
                 """task (copy, type:Copy) {
                    into 'dest'
+                   expand(one: 1)
                    filter { (Integer.parseInt(it) * 10) as String }
                    filter { (Integer.parseInt(it) + 2) as String }
                    from('src/two/two.a') {
@@ -289,6 +290,27 @@ public class CopyTaskIntegrationTest extends AbstactCopyIntegrationTest {
                 'two/two.a',
                 'three/three.a',
                 'a.jar'
+        )
+    }
+
+    @Test public void testCopyWithCopyspec() {
+        TestFile buildFile = testFile("build.gradle").writelns(
+                """
+                def spec = copySpec {
+                    from 'src'
+                    exclude '**/ignore/**'
+                    include '*/*.a'
+                    into 'subdir'
+                }
+                task copy(type: Copy) {
+                    into 'dest'
+                    with spec
+                }"""
+        )
+        usingBuildFile(buildFile).withTasks("copy").run()
+        testFile('dest').assertHasDescendants(
+                'subdir/one/one.a',
+                'subdir/two/two.a'
         )
     }
 }

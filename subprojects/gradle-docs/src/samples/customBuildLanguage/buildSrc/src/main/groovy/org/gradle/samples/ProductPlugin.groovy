@@ -23,9 +23,9 @@ import org.gradle.api.tasks.bundling.Zip
  * A plugin which configures a product project. Each product is composed of several product modules.
  */
 class ProductPlugin implements Plugin<Project> {
-    void use(Project project) {
+    void apply(Project project) {
         project.configure(project) {
-            apply id: 'base'
+            apply plugin: 'base'
 
             def pluginConvention = new ProductPluginConvention()
             convention.plugins.product = pluginConvention

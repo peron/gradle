@@ -28,8 +28,8 @@ class MavenProjectIntegrationTest {
     public void handlesSubProjectsWithoutTheMavenPluginApplied() {
         dist.testFile("settings.gradle").write("include 'subProject'");
         dist.testFile("build.gradle") << '''
-            apply id: 'java'
-            apply id: 'maven'
+            apply plugin: 'java'
+            apply plugin: 'maven'
         '''
         executer.withTaskList().run();
     }
@@ -37,8 +37,9 @@ class MavenProjectIntegrationTest {
     @Test
     public void canDeployAProjectWithDependencyInMappedAndUnMappedConfiguration() {
         dist.testFile("build.gradle") << '''
-            apply id: 'java'
-            apply id: 'maven'
+            apply plugin: 'java'
+            apply plugin: 'maven'
+            group = 'root'
             repositories { mavenCentral() }
             configurations { custom }
             dependencies {
@@ -58,9 +59,10 @@ class MavenProjectIntegrationTest {
     
     @Test
     public void canDeployAProjectWithNoMainArtifact() {
-        dist.testFile("build.gradle") << '''
-            apply id: 'java'
-            apply id: 'maven'
+        def file = dist.testFile("build.gradle") << '''
+            apply plugin: 'java'
+            apply plugin: 'maven'
+            group = 'root'
             jar.enabled = false
             task sourceJar(type: Jar) {
                 classifier = 'source'
@@ -76,6 +78,7 @@ class MavenProjectIntegrationTest {
                 }
             }
         '''
+        println file.absolutePath
         executer.withTasks('uploadArchives').run()
     }
 }

@@ -68,7 +68,7 @@ abstract class DefaultScript extends BasicScript {
 
     void apply(Map options) {
         ObjectConfigurationAction action = new DefaultObjectConfigurationAction(fileResolver, services.get(ScriptPluginFactory.class), scriptTarget)
-        ConfigureUtil.configure(options, action)
+        ConfigureUtil.configureByMap(options, action)
         action.execute()
     }
 
@@ -86,6 +86,10 @@ abstract class DefaultScript extends BasicScript {
 
     File file(Object path, PathValidation validation) {
         fileOperations.file(path, validation)
+    }
+
+    URI uri(Object path) {
+        fileOperations.uri(path)
     }
 
     ConfigurableFileCollection files(Object ... paths) {
@@ -126,6 +130,10 @@ abstract class DefaultScript extends BasicScript {
 
     CopySpec copySpec(Closure closure) {
         fileOperations.copySpec(closure)
+    }
+
+    File mkdir(Object path) {
+        return fileOperations.mkdir(path);
     }
 
     public void captureStandardOutput(LogLevel level) {

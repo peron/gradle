@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.gradle.api.internal.plugins;
 
 import org.gradle.api.Plugin;
@@ -47,7 +48,7 @@ public class DefaultObjectConfigurationAction implements ObjectConfigurationActi
         return this;
     }
 
-    public ObjectConfigurationAction url(final Object script) {
+    public ObjectConfigurationAction from(final Object script) {
         actions.add(new Runnable() {
             public void run() {
                 applyScript(script);
@@ -56,7 +57,7 @@ public class DefaultObjectConfigurationAction implements ObjectConfigurationActi
         return this;
     }
 
-    public ObjectConfigurationAction type(final Class<? extends Plugin> pluginClass) {
+    public ObjectConfigurationAction plugin(final Class<? extends Plugin> pluginClass) {
         actions.add(new Runnable() {
             public void run() {
                 applyPlugin(pluginClass);
@@ -65,10 +66,10 @@ public class DefaultObjectConfigurationAction implements ObjectConfigurationActi
         return this;
     }
 
-    public ObjectConfigurationAction id(final String pluginName) {
+    public ObjectConfigurationAction plugin(final String pluginId) {
         actions.add(new Runnable() {
             public void run() {
-                applyPlugin(pluginName);
+                applyPlugin(pluginId);
             }
         });
         return this;
@@ -78,7 +79,7 @@ public class DefaultObjectConfigurationAction implements ObjectConfigurationActi
         URI scriptUri = resolver.resolveUri(script);
         ScriptPlugin configurer = configurerFactory.create(new UriScriptSource("script", scriptUri));
         for (Object target : targets) {
-            configurer.use(target);
+            configurer.apply(target);
         }
     }
 
@@ -86,18 +87,18 @@ public class DefaultObjectConfigurationAction implements ObjectConfigurationActi
         for (Object target : targets) {
             if (target instanceof Project) {
                 Project project = (Project) target;
-                project.getPlugins().usePlugin(pluginClass);
+                project.getPlugins().apply(pluginClass);
             } else {
                 throw new UnsupportedOperationException();
             }
         }
     }
 
-    private void applyPlugin(String pluginName) {
+    private void applyPlugin(String pluginId) {
         for (Object target : targets) {
             if (target instanceof Project) {
                 Project project = (Project) target;
-                project.getPlugins().usePlugin(pluginName);
+                project.getPlugins().apply(pluginId);
             } else {
                 throw new UnsupportedOperationException();
             }

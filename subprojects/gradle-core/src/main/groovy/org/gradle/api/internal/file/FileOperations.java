@@ -24,12 +24,15 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.WorkResult;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Map;
 
 public interface FileOperations {
     File file(Object path);
 
     File file(Object path, PathValidation validation);
+
+    URI uri(Object path);
 
     FileResolver getFileResolver();
 
@@ -52,4 +55,6 @@ public interface FileOperations {
     CopySpec copySpec(Closure closure);
 
     WorkResult copy(Closure closure);
+
+    File mkdir(Object path);
 }

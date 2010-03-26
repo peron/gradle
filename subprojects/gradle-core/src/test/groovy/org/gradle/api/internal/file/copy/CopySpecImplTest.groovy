@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 the original author or authors.
+ * Copyright 2010 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.gradle.api.tasks.util.PatternSet
 import org.gradle.api.file.FileTree
 import org.gradle.api.Action
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.file.CopySpec
 
 @RunWith(JMock)
 public class CopySpecImplTest {
@@ -79,11 +80,34 @@ public class CopySpecImplTest {
         assertEquals(['source1', 'source2'], child.sourcePaths.flatten() as List);
     }
 
-    @Test public void testFromSpec() {
+    @Test public void testDefaultDestinationPathForRootSpec() {
+        assertThat(spec.destPath, equalTo(new RelativePath(false)))
+    }
+
+    @Test public void testInto() {
+        spec.into 'spec'
+        assertThat(spec.destPath, equalTo(new RelativePath(false, 'spec')))
+        spec.into '/'
+        assertThat(spec.destPath, equalTo(new RelativePath(false)))
+    }
+
+    @Test public void testWithSpec() {
         CopySpecImpl other = new CopySpecImpl(fileResolver)
-        spec.from other
+
+        spec.with other
         assertTrue(spec.sourcePaths.empty)
         assertThat(spec.childSpecs.size(), equalTo(1))
+    }
+
+    @Test public void testWithSpecInheritsDestinationPathFromParent() {
+        CopySpecImpl other = new CopySpecImpl(fileResolver)
+        other.into 'other'
+
+        spec.into 'spec'
+        spec.with other
+
+        ReadableCopySpec child = spec.childSpecs[0]
+        assertThat(child.destPath, equalTo(new RelativePath(false, 'spec', 'other')))
     }
 
     @Test public void testDestinationWithClosure() {
@@ -208,6 +232,11 @@ public class CopySpecImplTest {
         assertThat(spec.allCopyActions.size(), equalTo(1))
     }
 
+    @Test public void testExpand() {
+        spec.expand(version: '1.2', skip: 2)
+        assertThat(spec.allCopyActions.size(), equalTo(1))
+    }
+
     @Test public void testTwoFilters() {
         spec.filter(StripJavaComments)
         spec.filter(HeadFilter, lines: 15, skip: 2)
@@ -215,8 +244,16 @@ public class CopySpecImplTest {
         assertThat(spec.allCopyActions.size(), equalTo(2))
     }
 
-    @Test public void testAddsNameTransformerToActions() {
+    @Test public void testAddsStringNameTransformerToActions() {
         spec.rename("regexp", "replacement")
+
+        assertThat(spec.allCopyActions.size(), equalTo(1))
+        assertThat(spec.allCopyActions[0], instanceOf(RenamingCopyAction))
+        assertThat(spec.allCopyActions[0].transformer, instanceOf(RegExpNameMapper))
+    }
+
+    @Test public void testAddsPatternNameTransformerToActions() {
+        spec.rename(/regexp/, "replacement")
 
         assertThat(spec.allCopyActions.size(), equalTo(1))
         assertThat(spec.allCopyActions[0], instanceOf(RenamingCopyAction))

@@ -54,6 +54,7 @@ import org.gradle.listener.ListenerBroadcast;
 import org.gradle.util.*;
 
 import java.io.File;
+import java.net.URI;
 import java.util.*;
 
 import static java.util.Collections.*;
@@ -280,7 +281,12 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
     }
 
     public Object getGroup() {
-        return group == null ? DEFAULT_GROUP : group;
+        if (group != null) {
+            return group;
+        } else if (this == rootProject) {
+            return "";
+        }
+        return rootProject.getName() + ( getParent() == rootProject ? "" : "." + getParent().getPath().substring(1).replace(':', '.'));
     }
 
     public void setGroup(Object group) {
@@ -497,15 +503,15 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
         return this;
     }
 
-    public Project usePlugin(String pluginName) {
+    public Project usePlugin(String pluginId) {
         warnUsePluginDeprecated();
-        pluginContainer.usePlugin(pluginName);
+        pluginContainer.apply(pluginId);
         return this;
     }
 
     public Project usePlugin(Class<? extends Plugin> pluginClass) {
         warnUsePluginDeprecated();
-        pluginContainer.usePlugin(pluginClass);
+        pluginContainer.apply(pluginClass);
         return this;
     }
 
@@ -676,6 +682,10 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
         return fileOperations.file(path, validation);
     }
 
+    public URI uri(Object path) {
+        return fileOperations.uri(path);
+    }
+
     public ConfigurableFileCollection files(Object... paths) {
         return fileOperations.files(paths);
     }
@@ -706,6 +716,10 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
 
     public String relativePath(Object path) {
         return fileOperations.relativePath(path);
+    }
+
+    public File mkdir(Object path) {
+        return fileOperations.mkdir(path);
     }
 
     public Directory dir(String path) {
@@ -829,7 +843,7 @@ public abstract class AbstractProject implements ProjectInternal, DynamicObjectA
     public void apply(Map<String, ?> options) {
         DefaultObjectConfigurationAction action = new DefaultObjectConfigurationAction(fileResolver, services.get(
                 ScriptPluginFactory.class), this);
-        ConfigureUtil.configure(options, action);
+        ConfigureUtil.configureByMap(options, action);
         action.execute();
     }
 

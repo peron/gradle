@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-
-
-
-
 package org.gradle.api.internal.project
 
 import java.awt.Point
@@ -70,6 +63,7 @@ import static org.hamcrest.Matchers.*
 import static org.junit.Assert.*
 import org.gradle.api.internal.ClassGenerator
 import org.gradle.api.internal.AsmBackedClassGenerator
+import org.gradle.configuration.ScriptPluginFactory
 
 /**
  * @author Hans Dockter
@@ -186,6 +180,7 @@ class DefaultProjectTest {
             allowing(serviceRegistryMock).get(DependencyMetaDataProvider); will(returnValue(dependencyMetaDataProviderMock))
             allowing(serviceRegistryMock).get(FileResolver); will(returnValue([:] as FileResolver))
             allowing(serviceRegistryMock).get(FileOperations); will(returnValue([:] as FileOperations))
+            allowing(serviceRegistryMock).get(ScriptPluginFactory); will(returnValue([:] as ScriptPluginFactory))
             Object listener = context.mock(ProjectEvaluationListener)
             ignoring(listener)
             allowing(build).getProjectEvaluationBroadcaster();
@@ -266,7 +261,6 @@ class DefaultProjectTest {
     private void checkProject(DefaultProject project, Project parent, String name, File projectDir) {
         assertSame parent, project.parent
         assertEquals name, project.name
-        assertEquals Project.DEFAULT_GROUP, project.group
         assertEquals Project.DEFAULT_VERSION, project.version
         assertEquals Project.DEFAULT_STATUS, project.status
         assertSame(rootDir, project.rootDir)
@@ -287,19 +281,26 @@ class DefaultProjectTest {
         assertEquals DefaultProject.DEFAULT_BUILD_DIR_NAME, project.buildDirName
     }
 
-    @Test public void testNullGroupVersionAndStatus() {
+    @Test public void testNullVersionAndStatus() {
         project.version = 'version'
-        project.group = 'group'
         project.status = 'status'
         assertEquals('version', project.version)
-        assertEquals('group', project.group)
         assertEquals('status', project.status)
         project.version = null
-        project.group = null
         project.status = null
         assertEquals(Project.DEFAULT_VERSION, project.version)
-        assertEquals(Project.DEFAULT_GROUP, project.group)
         assertEquals(Project.DEFAULT_STATUS, project.status)
+    }
+
+    @Test void testGetGroup() {
+        assertThat(project.getGroup(), equalTo(''))
+        assertThat(childchild.getGroup(), equalTo('root.child1'))
+
+        child1.group = ''
+        assertThat(child1.getGroup(), equalTo(''))
+
+        child1.group = null
+        assertThat(child1.getGroup(), equalTo('root'))
     }
 
     @Test public void testExecutesActionBeforeEvaluation() {
@@ -348,18 +349,17 @@ class DefaultProjectTest {
     }
 
     @Test void testUsePluginWithString() {
-        checkUsePlugin('someplugin')
+        context.checking {
+            one(pluginContainerMock).apply('someplugin'); will(returnValue([:] as Plugin))
+        }
+        project.apply(plugin: 'someplugin')
     }
 
     @Test void testUsePluginWithClass() {
-        checkUsePlugin(Plugin)
-    }
-
-    private void checkUsePlugin(def usePluginArgument) {
         context.checking {
-            one(pluginContainerMock).usePlugin(usePluginArgument); will(returnValue([:] as Plugin))
+            one(pluginContainerMock).apply(Plugin); will(returnValue([:] as Plugin))
         }
-        assertThat(project.usePlugin(usePluginArgument), sameInstance(project))
+        project.apply(plugin: Plugin)
     }
 
     @Test void testEvaluationDependsOn() {

@@ -1,9 +1,9 @@
 group = 'gradle_tooling'
 version = '1.0'
 
-apply id: 'groovy'
+apply plugin: 'groovy'
 // START SNIPPET use-plugin
-apply id: 'osgi'
+apply plugin: 'osgi'
 // END SNIPPET use-plugin
 
 repositories {
@@ -16,10 +16,12 @@ dependencies {
     compile group: 'org.eclipse', name: 'osgi', version: '3.4.3.R34x_v20081215-1030'
 }
 
-configure(jar.osgi) {
-    version = '1.0'
-    name = 'Example Gradle Activator'
-    instruction 'Bundle-Activator', 'org.gradle.GradleActivator'
-    instruction 'Import-Package', '*'
-    instruction 'Export-Package', '*'
+jar {
+    manifest {
+        version = '1.0'
+        name = 'Example Gradle Activator'
+        instruction 'Bundle-Activator', 'org.gradle.GradleActivator'
+        instruction 'Import-Package', '*'
+        instruction 'Export-Package', '*'
+    }
 }
