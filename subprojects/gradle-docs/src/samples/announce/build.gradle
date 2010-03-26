@@ -1,0 +1,4 @@
+// START SNIPPET use-plugin
+apply id: 'announce'
+// END SNIPPET use-plugin
+

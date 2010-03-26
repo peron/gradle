@@ -1,0 +1,20 @@
+apply {
+   plugin 'announce'
+   plugin 'java'
+}
+
+// START SNIPPET full-example
+configure(announce) {
+    message = "defautlmessage"
+	username = "forallUser"
+	twitter {
+		message "announceUserName"
+		username = twitter.username
+    	pwd = "blubb"
+	}
+	identica{
+		username identicaUserName
+		pwd
+	}
+}
+// END SNIPPET full-example
