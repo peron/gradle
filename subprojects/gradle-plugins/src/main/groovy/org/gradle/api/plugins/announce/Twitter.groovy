@@ -1,7 +1,8 @@
-package org.gradle.api.plugins;
+package org.gradle.api.plugins.announce;
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+
+import org.gradle.api.logging.Logger
+import org.slf4j.LoggerFactory
 import sun.misc.BASE64Encoder
 
 /**
@@ -11,27 +12,37 @@ import sun.misc.BASE64Encoder
  */
 class Twitter implements Announcer {
 
+  private static final String TWITTER_UPDATE_URL = "https://twitter.com/statuses/update.xml"
+
   def userName
   def password
-  
+
+  private static Logger logger = LoggerFactory.getLogger(Twitter)
+
   Twitter(String username, String password) {
     this.userName = username
     this.password = password
   }
 
   public void send(String title, String message) {
-    def connection = new URL("https://twitter.com/statuses/update.xml").openConnection()
-    connection.doInput = true
-    connection.doOutput = true
-    connection.useCaches = false
+    OutputStreamWriter out
+    URL connection
+    try {
+      connection = new URL(TWITTER_UPDATE_URL).openConnection()
+      connection.doInput = true
+      connection.doOutput = true
+      connection.useCaches = false
+      String encoded = new BASE64Encoder().encodeBuffer("$userName:$password".toString().bytes).trim()
+      connection.setRequestProperty "Authorization", "Basic " + encoded
+      out = new OutputStreamWriter(connection.outputStream)
+      out.write "status=" + URLEncoder.encode(message, "UTF-8")
+    } catch (Exception e) {
+       logger.error('Could not send message to twitter', e)
+    } finally {
+      out?.close()
+      connection?.disconnect()
 
-    String encoded = new BASE64Encoder().encodeBuffer("$userName:$password".toString().bytes).trim()
-    connection.setRequestProperty "Authorization", "Basic " + encoded
+    }
 
-    OutputStreamWriter out = new OutputStreamWriter(connection.outputStream)
-    out.write "status=" + URLEncoder.encode(message, "UTF-8")
-    out.close()
-
-    connection.disconnect()
   }
 }
