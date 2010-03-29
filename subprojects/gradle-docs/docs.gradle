@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 import org.gradle.build.docs.UserGuideTransformTask
 import org.gradle.build.docs.ExtractSnippetsTask
 import org.gradle.build.docs.AssembleSamplesDocTask
 
-apply id: 'base'
+apply plugin: 'base'
 
 configurations {
     ftpAntTask
@@ -186,6 +184,8 @@ task javadoc(type: Javadoc) {
     include 'org/gradle/external/javadoc/**'
     exclude '**/internal/**'
     optionsFile = file("$buildDir/tmp/javadoc.options")
+    options.links("http://java.sun.com/j2se/1.5.0/docs/api", "http://groovy.codehaus.org/gapi/", "http://maven.apache.org/ref/2.2.1/maven-core/apidocs",
+        "http://maven.apache.org/ref/2.2.1/maven-model/apidocs")
     doFirst {
         title = "Gradle API $version"
     }
@@ -222,6 +222,7 @@ task distDocs(type: Docbook2Xhtml, dependsOn: userguideFragmentSrc) {
 task websiteDocsSrc(type: UserGuideTransformTask, dependsOn: [userguideStyleSheets, samples, samplesDocbook]) {
     sourceFile = new File(userguideSrcDir, 'userguide.xml')
     destFile = new File(docbookSrc, 'website.xml')
+    tags << 'website'
     doFirst {
         javadocUrl = remoteLocations.javadocUrl
         groovydocUrl = remoteLocations.groovydocUrl
