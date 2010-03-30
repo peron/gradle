@@ -38,7 +38,11 @@ class NotifySend implements Announcer {
         try {
             cmd.execute()
         } catch (java.io.IOException e) {
-            LOGGER.error('Could not find notify-send command', e)
+            LOGGER.warn('''Could not find notify-send command,
+              The programm is aviable in the libnotify-bin.
+              On ubuntu simple install it with: \\n   
+              sudo apt-get install libnotify-bin''')
+
         }
     }
 }

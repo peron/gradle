@@ -1,5 +1,5 @@
 // START SNIPPET use-plugin
-apply id: AnnouncePlugin
+apply plugin: 'announce'
 // END SNIPPET use-plugin
 
 //START SNIPPET announce-plugin-conf

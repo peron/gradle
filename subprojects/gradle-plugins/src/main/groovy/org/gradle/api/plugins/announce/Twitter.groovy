@@ -17,9 +17,10 @@
 package org.gradle.api.plugins.announce;
 
 
-import org.gradle.api.logging.Logger
+
 import org.slf4j.LoggerFactory
 import sun.misc.BASE64Encoder
+import org.slf4j.Logger
 
 /**
  * This class allows to send announce messages to twitter.
@@ -52,8 +53,9 @@ class Twitter implements Announcer {
       connection.setRequestProperty "Authorization", "Basic " + encoded
       out = new OutputStreamWriter(connection.outputStream)
       out.write "status=" + URLEncoder.encode(message, "UTF-8")
+      logger.info("Successfully send message: [$message] to twitter [$userName]")
     } catch (Exception e) {
-       logger.error('Could not send message to twitter', e)
+       logger.warn('Could not send message to twitter', e)
     } finally {
       out?.close()
       connection?.disconnect()
