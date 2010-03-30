@@ -53,11 +53,14 @@ class Twitter implements Announcer {
       connection.setRequestProperty "Authorization", "Basic " + encoded
       out = new OutputStreamWriter(connection.outputStream)
       out.write "status=" + URLEncoder.encode(message, "UTF-8")
+      out.close()
+       def result = ''
+       connection.inputStream.eachLine { result += it }
+      logger.info result
       logger.info("Successfully send message: [$message] to twitter [$userName]")
     } catch (Exception e) {
-       logger.warn('Could not send message to twitter', e)
+      logger.warn('Could not send message to twitter', e)
     } finally {
-      out?.close()
       connection?.disconnect()
 
     }
