@@ -13,30 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'groovy'
 
-dependencies {
-    groovy libraries.groovy_depends
-    compile project(':core')
+package org.gradle.api.plugins.announce;
 
-    compile libraries.commons_io, libraries.ant, libraries.ant_nodeps
 
-    testCompile project(path: ':core', configuration: 'testFixtures')
-    testRuntime project(path: ':core', configuration: 'testFixturesRuntime')
-}
-
-manifest.mainAttributes("Main-Class": 'org.gradle.wrapper.GradleWrapperMain')
-
-jar {
-    include 'org/gradle/wrapper/**'
-}
-
-task taskJar(type: Jar) {
-    from sourceSets.main.classes
-    exclude 'org/gradle/wrapper/**'
-    baseName = "$jar.baseName-tasks"
-}
-
-artifacts {
-    archives taskJar
+interface Announcer {
+  void send(String title, String message); 
 }
